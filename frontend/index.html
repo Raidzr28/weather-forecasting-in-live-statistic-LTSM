@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="light" />
+<meta name="theme-color" content="#f4f4f1" />
+<title>Prakiraan Cuaca Indonesia — BMKG + LSTM</title>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+<link rel="preload" as="image"
+      href="https://images.unsplash.com/photo-1687223739562-ad9bc5f876fc?q=80&w=2000&auto=format&fit=crop" />
+<link rel="stylesheet" href="/static/style.css?v=4" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<!--
+  DIRECTION CONTRACT — Prakiraan Cuaca Indonesia (redesign)
+  THESIS: A calm, editorial weather instrument. The prior build shouted with liquid
+    glass, animated blobs and gradient-clipped text; this one refuses all of it.
+    Structure reads as quiet horizontal bands on a warm off-white ground, one
+    atmospheric Indonesian sky photograph anchoring the top, data in flat panels
+    with hairline borders and a real type hierarchy. The "now" reading gets scale;
+    everything else recedes. No uniform card grid.
+  OWN-WORLD: Warm paper ground (#f4f4f1), ink #17191f, muted #5c6270, hairline
+    #e2e0d9. One accent — sky blue #2f6df0 (links, active tab, focus, primary
+    action, model series). Warm #c9691f only as the second data series. Flat white
+    panels, 1px hairline, 14px radius, soft shadow on hover only. System sans; scale
+    and weight carry hierarchy, not decoration. Font Awesome icons, solid weight, one size language.
+  STORY: Visitor lands on a calm sky + the app's purpose in one line. Searches a
+    place → current conditions large and clear, model-vs-official comparison,
+    accuracy numbers, official 3-day table. Or plans a trip → route map + weather
+    along the way. Motion guides attention (bands settle in on scroll, tab slides,
+    the "now" number counts up) and never blocks the task.
+  FIRST VIEWPORT: Full-width hero band (desktop ~44vh, mobile a compact ~200px
+    identity strip), the East Java aerial-clouds photo with a light scrim, h1 +
+    subtitle. Directly below: the segmented view switch (a white pill on desktop;
+    on mobile it spans the width and sticks to the top as you scroll). Then on
+    paper, the wide quiet search field.
+  FORM: Editorial horizontal bands, Operate register, one column on phones with
+    touch-sized targets and the 3-day table as a pinned-column horizontal scroll.
+    Brief pinned "minimalist"; shaped directly. Photos: Unsplash, credited in README.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the
+    finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+-->
+
+<header class="hero">
+  <div class="hero-photo" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <h1><i class="fa-solid fa-cloud-sun" aria-hidden="true"></i> Prakiraan Cuaca Indonesia</h1>
+    <p class="subtitle">Data resmi BMKG disandingkan dengan model <em>deep learning</em> (LSTM) yang dilatih dari riwayat cuaca lokasi yang kamu pilih.</p>
+  </div>
+</header>
+
+<div class="tabbar">
+  <nav class="tabs" aria-label="Pilih tampilan">
+    <span class="tab-indicator" aria-hidden="true"></span>
+    <button class="tab-btn active" data-view="location"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Cuaca Lokasi</button>
+    <button class="tab-btn" data-view="trip"><i class="fa-solid fa-route" aria-hidden="true"></i> Rencana Perjalanan</button>
+  </nav>
+</div>
+
+<main>
+
+  <!-- ================= LOCATION VIEW ================= -->
+  <div id="view-location" class="view">
+    <section class="search-section" data-reveal>
+      <label class="search-box" for="search-input">
+        <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+        <input id="search-input" type="text" placeholder="Cari kelurahan atau kota" autocomplete="off" />
+        <ul id="search-results" class="search-results hidden"></ul>
+      </label>
+      <p class="search-hint">Kode wilayah resmi (adm4) dicocokkan lokal dari tabel Kepmendagri — mencakup seluruh Indonesia.</p>
+    </section>
+
+    <div id="location-empty" class="location-empty" data-reveal>
+      <i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i>
+      <p>Pilih sebuah lokasi untuk melihat prakiraan resmi BMKG disandingkan dengan prediksi model LSTM.</p>
+    </div>
+
+    <section id="region-info" class="region-info hidden" data-reveal>
+      <h2 id="region-title"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <span></span></h2>
+      <p id="region-breadcrumb" class="breadcrumb"></p>
+    </section>
+
+    <section id="status-banner" class="status-banner hidden" aria-live="polite"></section>
+
+    <section id="dashboard" class="dashboard hidden">
+      <div class="card now-card" data-reveal>
+        <h3><i class="fa-solid fa-satellite-dish" aria-hidden="true"></i> Saat ini — menurut BMKG</h3>
+        <div id="now-content"></div>
+      </div>
+
+      <div class="card metrics-card" data-reveal>
+        <h3><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Akurasi model <span class="h3-note">validasi historis</span></h3>
+        <div id="metrics-content" class="metrics-content"></div>
+        <button id="retrain-btn" class="btn-primary"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Latih ulang model</button>
+      </div>
+
+      <div class="card chart-card" data-reveal>
+        <h3><i class="fa-solid fa-temperature-half" aria-hidden="true"></i> Suhu 24 jam ke depan <span class="h3-note">Model LSTM vs BMKG</span></h3>
+        <div class="chart-box"><canvas id="temp-chart"></canvas></div>
+      </div>
+
+      <div class="card chart-card" data-reveal>
+        <h3><i class="fa-solid fa-cloud-showers-heavy" aria-hidden="true"></i> Curah hujan 24 jam ke depan <span class="h3-note">prediksi model, mm/jam</span></h3>
+        <div class="chart-box"><canvas id="rain-chart"></canvas></div>
+      </div>
+
+      <div class="card table-card" data-reveal>
+        <h3><i class="fa-solid fa-table-list" aria-hidden="true"></i> Prakiraan resmi BMKG <span class="h3-note">3 hari ke depan</span></h3>
+        <div id="bmkg-table"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= TRIP VIEW ================= -->
+  <div id="view-trip" class="view hidden">
+    <section class="trip-form" data-reveal>
+      <div class="trip-field">
+        <label for="trip-from-input"><i class="fa-solid fa-circle-dot" aria-hidden="true"></i> Dari</label>
+        <div class="search-box search-box-inline">
+          <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+          <input id="trip-from-input" type="text" placeholder="Kota / kecamatan asal" autocomplete="off" />
+          <ul id="trip-from-results" class="search-results hidden"></ul>
+        </div>
+      </div>
+
+      <button id="trip-swap-btn" type="button" title="Tukar asal & tujuan" aria-label="Tukar asal dan tujuan"><i class="fa-solid fa-right-left" aria-hidden="true"></i></button>
+
+      <div class="trip-field">
+        <label for="trip-to-input"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Ke</label>
+        <div class="search-box search-box-inline">
+          <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+          <input id="trip-to-input" type="text" placeholder="Kota / kecamatan tujuan" autocomplete="off" />
+          <ul id="trip-to-results" class="search-results hidden"></ul>
+        </div>
+      </div>
+
+      <div class="trip-field trip-field-time">
+        <label for="trip-depart-input"><i class="fa-regular fa-clock" aria-hidden="true"></i> Waktu berangkat</label>
+        <input id="trip-depart-input" type="datetime-local" />
+      </div>
+
+      <button id="trip-go-btn" class="btn-primary"><i class="fa-solid fa-route" aria-hidden="true"></i> Hitung rute</button>
+    </section>
+
+    <section id="trip-status-banner" class="status-banner hidden" aria-live="polite"></section>
+
+    <section id="trip-results" class="hidden">
+      <div class="trip-summary" data-reveal>
+        <div class="trip-summary-item">
+          <i class="fa-solid fa-road" aria-hidden="true"></i>
+          <div><span class="label">Jarak</span><span id="trip-distance" class="value"></span></div>
+        </div>
+        <div class="trip-summary-item">
+          <i class="fa-regular fa-hourglass-half" aria-hidden="true"></i>
+          <div><span class="label">Estimasi durasi</span><span id="trip-duration" class="value"></span></div>
+        </div>
+        <div class="trip-summary-item">
+          <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i>
+          <div><span class="label">Estimasi tiba</span><span id="trip-arrival" class="value"></span></div>
+        </div>
+      </div>
+
+      <div class="card map-card" data-reveal>
+        <div id="trip-map"></div>
+        <div class="map-legend">
+          <span><i class="fa-solid fa-circle" style="color:#1f7a44" aria-hidden="true"></i> &lt; 20% peluang hujan</span>
+          <span><i class="fa-solid fa-circle" style="color:#946412" aria-hidden="true"></i> 20&ndash;50% peluang hujan</span>
+          <span><i class="fa-solid fa-circle" style="color:#b8402f" aria-hidden="true"></i> &ge; 50% peluang hujan</span>
+        </div>
+      </div>
+
+      <div class="card waypoints-card" data-reveal>
+        <h3><i class="fa-solid fa-cloud-sun-rain" aria-hidden="true"></i> Perkiraan cuaca sepanjang perjalanan</h3>
+        <div id="trip-waypoints" class="waypoints-row"></div>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<footer>
+  <p><i class="fa-solid fa-database" aria-hidden="true"></i> Sumber data:
+     <a href="https://data.bmkg.go.id/prakiraan-cuaca/" target="_blank" rel="noopener">BMKG Data Terbuka</a> ·
+     <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (riwayat &amp; prakiraan) ·
+     <a href="https://project-osrm.org" target="_blank" rel="noopener">OSRM</a> (rute) ·
+     foto <a href="https://unsplash.com/photos/ezvHNCfN5zw" target="_blank" rel="noopener">Spenser Sembrat / Unsplash</a></p>
+</footer>
+
+<script src="/static/app.js?v=4"></script>
+</body>
+</html>

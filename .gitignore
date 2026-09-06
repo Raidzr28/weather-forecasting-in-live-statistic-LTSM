@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Runtime-generated caches & artifacts (rebuilt on first use)
+data/wilayah_cache.csv
+models/
+
+# Logs
+*.log
+server_out.log
+server_err.log
+
+# Secrets / local environment
+.env
+.env.*
+!.env.example
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

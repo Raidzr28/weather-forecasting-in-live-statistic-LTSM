@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "frontend/index.html"
+        ],
+        "createdAt": "2026-09-06T17:17:53.687Z",
+        "reason": "Claude: degraded-mode detector (regex only, cannot resolve clamp()/rem/custom-props, self-declared undercount) misreads the scale. Rendered hierarchy has h1 at clamp(2.1rem..3.25rem) and the primary now-temp at clamp(3rem..4.4rem) against ~0.94-1rem body — multiple steps far above 1.25x."
+      }
+    ]
+  }
+}
