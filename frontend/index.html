@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
 <link rel="preload" as="image"
       href="https://images.unsplash.com/photo-1687223739562-ad9bc5f876fc?q=80&w=2000&auto=format&fit=crop" />
-<link rel="stylesheet" href="/static/style.css?v=4" />
+<link rel="stylesheet" href="/static/style.css?v=5" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -73,6 +73,15 @@
         <ul id="search-results" class="search-results hidden"></ul>
       </label>
       <p class="search-hint">Kode wilayah resmi (adm4) dicocokkan lokal dari tabel Kepmendagri — mencakup seluruh Indonesia.</p>
+      <div id="saved-row" class="place-row hidden">
+        <span class="place-row-label"><i class="fa-solid fa-star" aria-hidden="true"></i> Tersimpan</span>
+        <div id="saved-list" class="place-chips"></div>
+      </div>
+      <div id="history-row" class="place-row hidden">
+        <span class="place-row-label"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Riwayat</span>
+        <div id="history-list" class="place-chips"></div>
+        <button id="history-clear" type="button" class="place-clear">Hapus riwayat</button>
+      </div>
     </section>
 
     <div id="location-empty" class="location-empty" data-reveal>
@@ -81,7 +90,9 @@
     </div>
 
     <section id="region-info" class="region-info hidden" data-reveal>
-      <h2 id="region-title"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <span></span></h2>
+      <h2 id="region-title"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> <span></span>
+        <button id="save-btn" type="button" class="save-btn" aria-pressed="false" title="Simpan lokasi" aria-label="Simpan lokasi"><i class="fa-regular fa-star" aria-hidden="true"></i></button>
+      </h2>
       <p id="region-breadcrumb" class="breadcrumb"></p>
     </section>
 
@@ -191,6 +202,6 @@
      foto <a href="https://unsplash.com/photos/ezvHNCfN5zw" target="_blank" rel="noopener">Spenser Sembrat / Unsplash</a></p>
 </footer>
 
-<script src="/static/app.js?v=4"></script>
+<script src="/static/app.js?v=5"></script>
 </body>
 </html>

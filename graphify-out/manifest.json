@@ -1,0 +1,92 @@
+{
+  "backend/__init__.py": {
+    "mtime": 1784988406.0,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "backend/bmkg_client.py": {
+    "mtime": 1784988450.0,
+    "ast_hash": "aad078d6f82cc60269a7bb1c5ce351a9",
+    "semantic_hash": ""
+  },
+  "backend/config.py": {
+    "mtime": 1784990218.0,
+    "ast_hash": "5ed0178a3cb1a312d8797a07c190adaf",
+    "semantic_hash": ""
+  },
+  "backend/dataset.py": {
+    "mtime": 1784988490.0,
+    "ast_hash": "034af52d034ab61a34b74fe9cd60110f",
+    "semantic_hash": ""
+  },
+  "backend/infer.py": {
+    "mtime": 1784990224.0,
+    "ast_hash": "2f50955f2d91b0c1784b1d716b177880",
+    "semantic_hash": ""
+  },
+  "backend/main.py": {
+    "mtime": 1784992786.0,
+    "ast_hash": "a0df97b7e477a52968512951b084906c",
+    "semantic_hash": ""
+  },
+  "backend/model.py": {
+    "mtime": 1784988480.0,
+    "ast_hash": "a7dca686d8d5d55c039f624f001cd8cc",
+    "semantic_hash": ""
+  },
+  "backend/openmeteo_client.py": {
+    "mtime": 1784993642.0,
+    "ast_hash": "9080167c1191f97a98cc470cec7e4b34",
+    "semantic_hash": ""
+  },
+  "backend/osrm_client.py": {
+    "mtime": 1784992718.0,
+    "ast_hash": "63cc35e089c88b29c11ec87fa755cb7f",
+    "semantic_hash": ""
+  },
+  "backend/route.py": {
+    "mtime": 1784993664.0,
+    "ast_hash": "d3569f6a60ab717e83517a9f4c54ed4b",
+    "semantic_hash": ""
+  },
+  "backend/storage.py": {
+    "mtime": 1784988508.0,
+    "ast_hash": "15dc1859183153ab7a69260ab0ad518a",
+    "semantic_hash": ""
+  },
+  "backend/train.py": {
+    "mtime": 1784990210.0,
+    "ast_hash": "5f050f0d0e67e93d00fd01cba9f51c5c",
+    "semantic_hash": ""
+  },
+  "backend/weather_codes.py": {
+    "mtime": 1784992708.0,
+    "ast_hash": "6f1334fa19686685d52c583713e591e4",
+    "semantic_hash": ""
+  },
+  "backend/wilayah.py": {
+    "mtime": 1784993016.0,
+    "ast_hash": "34b870cbe3930d6317fa2b88f84a4be2",
+    "semantic_hash": ""
+  },
+  "frontend/app.js": {
+    "mtime": 1790305437.695691,
+    "ast_hash": "77f1a3f2e89b202576b53a4db68bb858",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1788715360.8271527,
+    "ast_hash": "76f9398a1efcba9aed6177048b8a23a5",
+    "semantic_hash": ""
+  },
+  "frontend/index.html": {
+    "mtime": 1790305415.840992,
+    "ast_hash": "910374e895e3c482454217bbceb2f47e",
+    "semantic_hash": ""
+  },
+  "requirements.txt": {
+    "mtime": 1784988394.0,
+    "ast_hash": "b8da802b37532cd74eff56635ab0785b",
+    "semantic_hash": ""
+  }
+}

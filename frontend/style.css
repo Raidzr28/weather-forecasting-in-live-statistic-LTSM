@@ -313,6 +313,73 @@ main {
   color: var(--muted);
 }
 
+/* ---------- saved locations + history chips ---------- */
+.place-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.9rem 0.2rem 0;
+}
+.place-row-label {
+  font-size: 0.74rem;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 0.25rem;
+}
+.place-row-label i { margin-right: 0.3rem; }
+.place-chips { display: contents; }
+.place-chip {
+  display: inline-flex;
+  align-items: center;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.place-chip button {
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  background: none;
+  border: 0;
+  padding: 0.4rem 0.8rem;
+  min-height: 36px;
+  cursor: pointer;
+}
+.place-chip button:hover { color: var(--accent-ink); background: var(--accent-wash); }
+.place-chip .place-chip-x { padding: 0.4rem 0.65rem 0.4rem 0.3rem; color: var(--muted); }
+.place-clear {
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.4rem;
+}
+.place-clear:hover { color: var(--accent-ink); }
+
+.save-btn {
+  margin-left: 0.25rem;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--hairline);
+  background: var(--paper);
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.save-btn:hover { color: var(--accent); }
+#region-title .save-btn[aria-pressed="true"] i { color: var(--warn); }
+#region-title .save-btn i { color: inherit; font-size: 0.95rem; }
+
 /* ---------- empty state, before a location is chosen ---------- */
 .location-empty {
   margin-top: clamp(2.5rem, 8vw, 5rem);

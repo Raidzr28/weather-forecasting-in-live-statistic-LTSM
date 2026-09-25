@@ -179,7 +179,89 @@ function showLoadingCard(el, messages, intervalMs = 1700) {
 
 createRegionSearch(document.getElementById("search-input"), document.getElementById("search-results"), selectRegion);
 
+// ===================== Saved locations + history (browser-local) =====================
+// ponytail: localStorage, per-browser only; move to a backend table if accounts ever exist
+const HISTORY_MAX = 8;
+const saveBtn = document.getElementById("save-btn");
+let currentRegion = null;
+
+function loadList(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
+}
+function storeList(key, list) {
+  try { localStorage.setItem(key, JSON.stringify(list)); } catch {}
+}
+function placeName(r) {
+  return `${r.desa}, ${r.kecamatan}`;
+}
+
+function renderPlaceRow(rowId, listId, key, removable) {
+  const list = loadList(key);
+  const row = document.getElementById(rowId);
+  const listEl = document.getElementById(listId);
+  row.classList.toggle("hidden", !list.length);
+  listEl.innerHTML = "";
+  list.forEach((r) => {
+    const chip = document.createElement("span");
+    chip.className = "place-chip";
+    const go = document.createElement("button");
+    go.type = "button";
+    go.textContent = placeName(r);
+    go.title = `${r.kotkab}, ${r.provinsi}`;
+    go.addEventListener("click", () => {
+      document.getElementById("search-input").value = placeName(r);
+      selectRegion(r);
+    });
+    chip.append(go);
+    if (removable) {
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "place-chip-x";
+      x.setAttribute("aria-label", `Hapus ${placeName(r)}`);
+      x.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
+      x.addEventListener("click", () => toggleSaved(r));
+      chip.append(x);
+    }
+    listEl.append(chip);
+  });
+}
+
+function renderPlaces() {
+  renderPlaceRow("saved-row", "saved-list", "savedPlaces", true);
+  renderPlaceRow("history-row", "history-list", "placeHistory", false);
+  const saved = currentRegion && loadList("savedPlaces").some((r) => r.adm4 === currentRegion.adm4);
+  saveBtn.setAttribute("aria-pressed", String(!!saved));
+  saveBtn.title = saved ? "Hapus dari tersimpan" : "Simpan lokasi";
+  saveBtn.setAttribute("aria-label", saveBtn.title);
+  saveBtn.innerHTML = `<i class="fa-${saved ? "solid" : "regular"} fa-star" aria-hidden="true"></i>`;
+}
+
+function toggleSaved(region) {
+  const list = loadList("savedPlaces");
+  const i = list.findIndex((r) => r.adm4 === region.adm4);
+  if (i >= 0) list.splice(i, 1);
+  else list.unshift(region);
+  storeList("savedPlaces", list);
+  renderPlaces();
+}
+
+function pushHistory(region) {
+  const list = loadList("placeHistory").filter((r) => r.adm4 !== region.adm4);
+  list.unshift(region);
+  storeList("placeHistory", list.slice(0, HISTORY_MAX));
+}
+
+saveBtn.addEventListener("click", () => currentRegion && toggleSaved(currentRegion));
+document.getElementById("history-clear").addEventListener("click", () => {
+  storeList("placeHistory", []);
+  renderPlaces();
+});
+renderPlaces();
+
 async function selectRegion(region) {
+  currentRegion = region;
+  pushHistory(region);
+  renderPlaces();
   currentAdm4 = region.adm4;
   document.getElementById("location-empty")?.classList.add("hidden");
   regionTitleText.textContent = `${region.desa}, ${region.kecamatan}`;
